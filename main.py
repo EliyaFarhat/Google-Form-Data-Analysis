@@ -14,7 +14,7 @@ SCOPES = ["https://www.googleapis.com/auth/forms.body.readonly",
 form_id = "<FORM_ID>"
 
 # API Key - Restricted to Google Forms API v1
-developerKey = "<TOKEN>"
+developerKey = "<API_KEY>"
 DISCOVERY_DOC = f"https://forms.googleapis.com/$discovery/rest?version=v1"
 
 # Store oauth token in a file 'token.json'
@@ -31,8 +31,19 @@ if not creds or creds.invalid:
 # Retrieves our Google Form information, formatting the questions and responses into lists
 def getGoogleFormData():
     forms = build('forms', 'v1', http=creds.authorize(Http()), discoveryServiceUrl = DISCOVERY_DOC, static_discovery=False)
+    # Get Google Form information
     form_info = forms.forms().get(formId=form_id).execute()
-    print(form_info)
+
+    # List to hold questions
+    questions = []
+    # Iterate through the JSON data from the above request (line 35), appending all questions to the list above
+    for x in range(len(form_info['items'])):
+        questions.append(form_info['items'][x]['title'])
+    # Get Google Form responses
+    form_responses = forms.forms().responses().list(formId=form_id).execute()
+
+    print(questions)
+    print(form_responses)
 
 getGoogleFormData()
 
