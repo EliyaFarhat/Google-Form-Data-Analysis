@@ -41,9 +41,36 @@ def getGoogleFormData():
         questions.append(form_info['items'][x]['title'])
     # Get Google Form responses
     form_responses = forms.forms().responses().list(formId=form_id).execute()
+    # Number of responses
+    number_of_responses = len(form_responses)
+    # Get independant variables
+    age_gpt = {'!Question': questions[-1]}
 
-    print(questions)
-    print(form_responses)
+    for x in range(len(form_responses['responses'])):
+        if form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value'] not in age_gpt:
+            age_gpt[
+                form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']] = {}
+            if form_responses['responses'][x]['answers']['4b9d5830']['textAnswers']['answers'][0]['value'] not in age_gpt[form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']]:
+                age_gpt[form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']][form_responses['responses'][x]['answers']['4b9d5830']['textAnswers']['answers'][0]['value']] = 1
+            else:
+                age_gpt[form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']][form_responses['responses'][x]['answers']['4b9d5830']['textAnswers']['answers'][0]['value']] += 1
+        else:
+            if form_responses['responses'][x]['answers']['4b9d5830']['textAnswers']['answers'][0]['value'] not in age_gpt[form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']]:
+                age_gpt[form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']][form_responses['responses'][x]['answers']['4b9d5830']['textAnswers']['answers'][0]['value']] = 1
+            else:
+                age_gpt[form_responses['responses'][x]['answers']['18cdfc08']['textAnswers']['answers'][0]['value']][form_responses['responses'][x]['answers']['4b9d5830']['textAnswers']['answers'][0]['value']] += 1
+
+
+
+
+
+    pprint(age_gpt)
+    # Get dependant variables
+            # pprint(form_responses['responses'][x]['answers'][y]['textAnswers']['answers'][0]['value'])
+    #pprint(form_responses['responses'])
+
+
+
 
 getGoogleFormData()
 
