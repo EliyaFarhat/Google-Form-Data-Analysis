@@ -1,11 +1,11 @@
 # Import Google Api Library and required libraries
-from apiclient import discovery
-import google.auth
-import googleapiclient
 from httplib2 import Http
 from googleapiclient.discovery import build
 from oauth2client import client, file, tools
 from pprint import pprint
+
+# NOTE: Lines 10 - 29 are available to view on Google's guide for the Google Form API
+
 # Scopes asked for oauth. Requesting access to forms and responses
 SCOPES = ["https://www.googleapis.com/auth/forms.body.readonly",
           "https://www.googleapis.com/auth/forms.responses.readonly"]
@@ -38,9 +38,10 @@ questions_ids = [x for x in form_responses['responses'][0]['answers']]
 # Standard discovery.build for the Google API
 # Retrieves our Google Form information, formatting the questions and responses into lists
 def get_google_form_data():
+    """
+    Returns a dictionary of each question with their corresponding question I.D.
+    """
     # Get Google Form information
-    NUMBER_OF_INDEPENDENT_QUESTIONS = 3
-
     # List to hold questions
     all_questions = {}
     # Iterate through the JSON data from the above request (line 35), appending all questions to the list above
@@ -51,17 +52,32 @@ def get_google_form_data():
 
 
 def get_number_of_responses():
+    """Returns the total number of responses to the Google Form."""
     # Number of responses
     number_of_responses = len(form_responses)
     return number_of_responses
 
 
-def compare_questions(independent, dependent):
 
+def compare_questions(independent, dependent):
+    """
+    Collects the number of answers to an independent question with respect to their answer to a dependent question
+    For example, this function returns a dictionary with the frequencies of answers of different groups between two
+    questions, allowing for data to be analyzed effectively and quickly.
+
+    {'!!Independant Questions': 'Age',
+     '!Dependant Question': 'Have you used ChatGPT?',
+     '18 - 22': {'No': 1},
+     'Under 18': {'No': 1, 'Yes': 2}}
+
+    """
     hold_data = {'!Dependant Question': get_google_form_data()[dependent],
                  '!!Independant Questions': get_google_form_data()[independent]}
-
+    # Iterate through each response
     for x in range(len(form_responses['responses'])):
+        # Create a key of the answer of the independent variable if it is not already in the dictionary Add the
+        # current responses answer as a value to the key, making it a key of a sub-dictionary. This will allow for the
+        # function to count the frequency of responses of certain groups, allowing for optimal data collection
         if form_responses['responses'][x]['answers'][independent]['textAnswers']['answers'][0]['value'] not in hold_data:
             hold_data[
                 form_responses['responses'][x]['answers'][independent]['textAnswers']['answers'][0]['value']] = {}
@@ -74,6 +90,8 @@ def compare_questions(independent, dependent):
                 hold_data[form_responses['responses'][x]['answers'][independent]['textAnswers']['answers'][0]['value']][
                     form_responses['responses'][x]['answers'][dependent]['textAnswers']['answers'][0]['value']] += 1
         else:
+            # If the independent group is already present within the dict, we only need to update the frequency of their
+            # answer to the dependant question
             if form_responses['responses'][x]['answers'][dependent]['textAnswers']['answers'][0]['value'] not in \
                     hold_data[
                         form_responses['responses'][x]['answers'][independent]['textAnswers']['answers'][0]['value']]:
@@ -105,4 +123,4 @@ def compare_questions(independent, dependent):
 #print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 #pprint(get_google_form_data())
 #print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-pprint(compare_questions(questions_ids[1],questions_ids[0]))
+pprint(compare_questions(questions_ids[1],questions_ids[2]))
