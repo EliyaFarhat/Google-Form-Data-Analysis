@@ -1,8 +1,15 @@
+# Import Python graphing library and pandas for data compilation
+import matplotlib.pyplot as plt
+import pandas as pd
 # Import Google Api Library and required libraries
 from httplib2 import Http
 from googleapiclient.discovery import build
 from oauth2client import client, file, tools
 from pprint import pprint
+
+
+# TODO: Add support for downloading graphs that are generated (Possibly add a GUI)
+
 
 # NOTE: Lines 10 - 29 are available to view on Google's guide for the Google Form API
 
@@ -33,7 +40,14 @@ forms = build('forms', 'v1', http=creds.authorize(Http()), discoveryServiceUrl=D
 form_responses = forms.forms().responses().list(formId=form_id).execute()
 form_info = forms.forms().get(formId=form_id).execute()
 # We can assume that everyone answers each question, since they are all required
-questions_ids = [x for x in form_responses['responses'][0]['answers']]
+pprint(form_info)
+questions_ids = []
+for x in range(len(form_info['items'])):
+    questions_ids.append(form_info['items'][x]['questionItem']['question']['questionId'])
+
+print("AAAHADSADSADS", questions_ids)
+
+
 #print(questions_ids)
 # Standard discovery.build for the Google API
 # Retrieves our Google Form information, formatting the questions and responses into lists
@@ -65,14 +79,14 @@ def compare_questions(independent, dependent):
     For example, this function returns a dictionary with the frequencies of answers of different groups between two
     questions, allowing for data to be analyzed effectively and quickly.
 
-    {'!!Independant Questions': 'Age',
+    {'!!Independant Question': 'Age',
      '!Dependant Question': 'Have you used ChatGPT?',
      '18 - 22': {'No': 1},
      'Under 18': {'No': 1, 'Yes': 2}}
 
     """
     hold_data = {'!Dependant Question': get_google_form_data()[dependent],
-                 '!!Independant Questions': get_google_form_data()[independent]}
+                 '!!Independant Question': get_google_form_data()[independent]}
     # Iterate through each response
     for x in range(len(form_responses['responses'])):
         # Create a key of the answer of the independent variable if it is not already in the dictionary Add the
@@ -103,24 +117,51 @@ def compare_questions(independent, dependent):
     return hold_data
 
 
+def plotBarGraph(data):
+    '''
+    Given the data dictionary from the compare_questions function. This function compiles the data and plots a 
+    grouped bar graph using matplotlib and pandas. 
+    '''
+    hold_questions = []
+    hold_questions.append([data["!!Independant Question"], data["!Dependant Question"]])
+    # Get Q1 labels
+    q1_labels = list(data.keys())
+    del data["!!Independant Question"]
+    del data["!Dependant Question"]
+    q1_labels.remove("!!Independant Question")
+    q1_labels.remove("!Dependant Question")
+    # Get Q2 value labels
+    q2_labels = list(data.values())
+    q2_labelsFinal = set()
+    for values in q2_labels:
+        for label in values:
+            q2_labelsFinal.add(label)
+
+    # Normalize data
+    for value in data.values():
+        for label in q2_labelsFinal:
+            if label not in value:
+                value[label] = 0
+    # Plot bar graph
+    df = pd.DataFrame(data)
+    ax = df.T.plot(kind='bar')
+    # Add values to bars (Annotate bars)
+    for container in ax.containers:
+        ax.bar_label(container)
+    plt.xticks(rotation=0, ha='right')
+    plt.ylabel(hold_questions[0][1])
+    plt.xlabel(hold_questions[0][0])
+    plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
+    plt.show()
 
 
+print("\nQuestions and ID's")
+pprint(get_google_form_data())
+print(f"\nQuestion ID list:\n{questions_ids}")
+print("\nRESULTS:\n")
+pprint(compare_questions(questions_ids[0],questions_ids[-3]))
+print("")
+pprint(compare_questions(questions_ids[2], questions_ids[1]))
 
-
-
-
-    # Get dependant variables
-            # pprint(form_responses['responses'][x]['answers'][y]['textAnswers']['answers'][0]['value'])
-#pprint(form_responses['responses'])
-
-
-
-
-#print(get_google_form_data())
-#print(compare_questions(1,2))
-#get_google_form_data()
-#pprint(form_info)
-#print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-#pprint(get_google_form_data())
-#print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-pprint(compare_questions(questions_ids[1],questions_ids[2]))
+# PLOT MAJOR VS. CHATGPT USAGE
+plotBarGraph(compare_questions(questions_ids[6], questions_ids[4]))
