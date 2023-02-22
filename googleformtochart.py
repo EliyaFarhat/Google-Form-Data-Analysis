@@ -119,8 +119,8 @@ def compare_questions(independent, dependent):
 
 def plotBarGraph(data):
     '''
-    Given the data dictionary from the compare_questions function. This function compiles the data and plots a 
-    grouped bar graph using matplotlib and pandas. 
+    Given the data dictionary from the compare_questions function. This function compiles the data and plots a
+    grouped bar graph using matplotlib and pandas.
     '''
     hold_questions = []
     hold_questions.append([data["!!Independant Question"], data["!Dependant Question"]])
@@ -149,8 +149,8 @@ def plotBarGraph(data):
     for container in ax.containers:
         ax.bar_label(container)
     plt.xticks(rotation=0, ha='right')
-    plt.ylabel(hold_questions[0][1])
-    plt.xlabel(hold_questions[0][0])
+    plt.ylabel(hold_questions[0][1],labelpad=20, fontsize=15)
+    plt.xlabel(hold_questions[0][0],labelpad=20, fontsize=15)
     plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
     plt.show()
 
