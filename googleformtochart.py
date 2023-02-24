@@ -5,6 +5,7 @@ import pandas as pd
 from httplib2 import Http
 from googleapiclient.discovery import build
 from oauth2client import client, file, tools
+# For easier viewing of JSON data
 from pprint import pprint
 
 
@@ -28,9 +29,10 @@ DISCOVERY_DOC = f"https://forms.googleapis.com/$discovery/rest?version=v1"
 store = file.Storage('token.json')
 # If we do not have credentials, retrieve it from credentials.json
 # NOTE: credentials.json was made in the Google Developer Panel
-# This will open a link in our browser, requesting permission using the SCOPES initialized earlier.
+# This will open a link in our browser, requesting permission using the SCOPES initialized earlier
 creds = None
 if not creds or creds.invalid:
+    # Complete authorization flow
     flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
     creds = tools.run_flow(flow, store)
 
