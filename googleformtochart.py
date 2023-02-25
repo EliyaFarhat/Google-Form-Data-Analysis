@@ -150,9 +150,9 @@ def plotBarGraph(data):
     # Add values to bars (Annotate bars)
     for container in ax.containers:
         ax.bar_label(container)
-    plt.xticks(rotation=0, ha='right')
+    plt.xticks(rotation=10, ha='right')
     plt.ylabel(hold_questions[0][1],labelpad=20, fontsize=15)
-    plt.xlabel(hold_questions[0][0],labelpad=20, fontsize=15)
+    plt.xlabel(hold_questions[0][0],labelpad=10, fontsize=15)
     plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
     plt.show()
 
