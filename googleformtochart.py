@@ -5,7 +5,7 @@ import pandas as pd
 from httplib2 import Http
 from googleapiclient.discovery import build
 from oauth2client import client, file, tools
-# For easier viewing of JSON data
+# For easier viewing of JSON data in the terminal (Helpful for debugging)
 from pprint import pprint
 
 
