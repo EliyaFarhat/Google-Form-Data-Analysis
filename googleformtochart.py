@@ -175,12 +175,13 @@ def plotBarGraph(data, graphType: str, stacked: bool):
             for container in ax.containers:
                 ax.bar_label(container)
         else:
+            # Add values to stacked bars, adding them to the center of each segment
             for c in ax.containers:
                 # Optional: if the segment is small or 0, customize the labels
+                # Remove the labels parameter if it's not needed for customized labels (height == 0)
                 labels = [int(v.get_height()) if v.get_height() > 0 else '' for v in c]
-
-                # remove the labels parameter if it's not needed for customized labels
                 ax.bar_label(c, labels=labels, label_type='center', color='white')
+
     # Add the number of responses to the upper-right corner
     plt.text(1, 1.12,f"(Responses: {get_number_of_responses()})" , transform=ax.transAxes, fontsize=10,
              bbox=dict(facecolor='red', alpha=0.5))
@@ -195,14 +196,16 @@ def plotBarGraph(data, graphType: str, stacked: bool):
     # Save image to the computer as a png and pixel density of 400 pixels per inch
     plt.savefig(f"{fileTitleI}vs{fileTitleD}.png", format='png', dpi=400)
     print("SUCCESS: Graph plotted.")
+
+    ############################################
     # Un-comment to display an interactive graph
     # plt.show()
-
+    ############################################
 
 print("\nQuestions and ID's")
 pprint(get_google_form_data())
 print(f"\nQuestion ID list:\n{questions_ids}")
-print("\nRESULTS:\n")
+#print("\nRESULTS:\n")
 #pprint(compare_questions(questions_ids[0],questions_ids[-3]))
 print("")
 #pprint(compare_questions(questions_ids[2], questions_ids[1]))
@@ -216,5 +219,5 @@ plotBarGraph(compare_questions(questions_ids[4], questions_ids[8]), graphType='b
 # PLOT: AGE VS. CHATGPT ACADEMIC USEFULNESS
 plotBarGraph(compare_questions(questions_ids[0], questions_ids[10]), graphType='line', stacked=False)
 
-# PLOT: KNOWLEDGE ON AI/ML VS. CHATGPT AVADEMIC USEFULNESS
+# PLOT: KNOWLEDGE ON AI/ML VS. CHATGPT ACADEMIC USEFULNESS
 plotBarGraph(compare_questions(questions_ids[10], questions_ids[5]), graphType='bar', stacked=False)
