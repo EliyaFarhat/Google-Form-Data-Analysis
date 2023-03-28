@@ -116,7 +116,7 @@ def compare_questions(independent, dependent):
                 hold_data[form_responses['responses'][x]['answers'][independent]['textAnswers']['answers'][0]['value']][
                     form_responses['responses'][x]['answers'][dependent]['textAnswers']['answers'][0]['value']] += 1
 
-    # FIXES INCORRECT GRAMMAR IN A SPECIFIC QUESTION
+    # FIXES INCORRECT GRAMMAR IN QUESTION ID: 1ed26975
     # Changing the value in the Google Form did not transfer the results, thus we must manually fix it here.
     # To fix this problem, we simply identify each occurrence of the mistake and change it by creating a new key
     # with the fixes and deleting the old one after its values copied to the fixed one.
