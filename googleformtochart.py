@@ -159,7 +159,7 @@ def plotBarGraph(data, graphType):
             ax.bar_label(container)
     plt.xticks(rotation=10, ha='right')
     plt.ylabel(hold_questions[0][1],labelpad=20, fontsize=15)
-    plt.xlabel(hold_questions[0][0] + f" (Responses: {get_number_of_responses()})",labelpad=10, fontsize=15)
+    plt.xlabel(hold_questions[0][0] + f" \n(Responses: {get_number_of_responses()})",labelpad=10, fontsize=15)
     plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
     # To prevent file overwrites, make the file title the two questions, ensuring uniqueness
     # Also ensure that the filename is file-friendly
