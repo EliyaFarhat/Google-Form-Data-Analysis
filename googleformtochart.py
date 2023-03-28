@@ -119,7 +119,7 @@ def compare_questions(independent, dependent):
     return hold_data
 
 
-def plotBarGraph(data):
+def plotBarGraph(data, graphType):
     '''
     Given the data dictionary from the compare_questions function. This function compiles the data and plots a
     grouped bar graph using matplotlib and pandas.
@@ -139,22 +139,32 @@ def plotBarGraph(data):
         for label in values:
             q2_labelsFinal.add(label)
 
-    # Normalize data
+    # Normalize data (If an option has 0 answers, display that (Google Forms API does not do this automatically))
     for value in data.values():
         for label in q2_labelsFinal:
             if label not in value:
                 value[label] = 0
-    # Plot bar graph
+    # Plot graph
     df = pd.DataFrame(data)
-    ax = df.T.plot(kind='bar')
-    # Add values to bars (Annotate bars)
-    for container in ax.containers:
-        ax.bar_label(container)
+    # Create a graph with dimensions of 13" x 8"
+    ax = df.T.plot(kind=graphType, figsize=(13, 8))
+    if graphType == 'bar':
+        # Add values to bars (Annotate bars)
+        for container in ax.containers:
+            ax.bar_label(container)
     plt.xticks(rotation=10, ha='right')
     plt.ylabel(hold_questions[0][1],labelpad=20, fontsize=15)
     plt.xlabel(hold_questions[0][0],labelpad=10, fontsize=15)
     plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
-    plt.show()
+    # To prevent file overwrites, make the file title the two questions, ensuring uniqueness
+    # Also ensure that the filename is file-friendly
+    fileTitleD = hold_questions[0][1].replace(" ","").replace("'", "").replace("?","").replace(",", "")
+    fileTitleI = hold_questions[0][0].replace(" ","").replace("'", "").replace("?","").replace(",", "")
+    # Save image to the computer as a png and pixel density of 400 pixels per inch
+    plt.savefig(f"{fileTitleI}vs{fileTitleD}.png", format='png', dpi=400)
+    print("SUCCESS: Graph plotted.")
+    # Un-comment to display an interactive graph
+    # plt.show()
 
 
 print("\nQuestions and ID's")
@@ -165,5 +175,11 @@ pprint(compare_questions(questions_ids[0],questions_ids[-3]))
 print("")
 pprint(compare_questions(questions_ids[2], questions_ids[1]))
 
-# PLOT MAJOR VS. CHATGPT USAGE
-plotBarGraph(compare_questions(questions_ids[6], questions_ids[4]))
+# PLOT: MAJOR VS. CHATGPT ACADEMIC USEFULNESS
+plotBarGraph(compare_questions(questions_ids[4], questions_ids[10]), 'bar')
+
+# PLOT: MAJOR VS. CHATGPT ACADEMIC FAIRNESS
+plotBarGraph(compare_questions(questions_ids[4], questions_ids[8]),'bar')
+
+# PLOT: AGE VS. CHATGPT ACADEMIC USEFULNESS
+plotBarGraph(compare_questions(questions_ids[0], questions_ids[10]),'line')
