@@ -118,7 +118,7 @@ def compare_questions(independent, dependent):
     return hold_data
 
 
-def plotBarGraph(data, graphType):
+def plotBarGraph(data, graphType: str, stacked: bool):
     """
 
     :param data: Google form data.
@@ -152,14 +152,26 @@ def plotBarGraph(data, graphType):
     # Plot graph
     df = pd.DataFrame(data)
     # Create a graph with dimensions of 13" x 8"
-    ax = df.T.plot(kind=graphType, figsize=(13, 8))
+
+    ax = df.T.plot(kind=graphType, figsize=(13, 8), stacked=stacked)
     if graphType == 'bar':
         # Add values to bars (Annotate bars)
-        for container in ax.containers:
-            ax.bar_label(container)
+        if stacked == False:
+            for container in ax.containers:
+                ax.bar_label(container)
+        else:
+            for c in ax.containers:
+                # Optional: if the segment is small or 0, customize the labels
+                labels = [int(v.get_height()) if v.get_height() > 0 else '' for v in c]
+
+                # remove the labels parameter if it's not needed for customized labels
+                ax.bar_label(c, labels=labels, label_type='center', color='white')
+    # Add the number of responses to the upper-right corner
+    plt.text(1, 1.12,f"(Responses: {get_number_of_responses()})" , transform=ax.transAxes, fontsize=10,
+             bbox=dict(facecolor='red', alpha=0.5))
     plt.xticks(rotation=10, ha='right')
     plt.ylabel(hold_questions[0][1],labelpad=20, fontsize=15)
-    plt.xlabel(hold_questions[0][0] + f" \n(Responses: {get_number_of_responses()})",labelpad=10, fontsize=15)
+    plt.xlabel(hold_questions[0][0],labelpad=8, fontsize=15)
     plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
     # To prevent file overwrites, make the file title the two questions, ensuring uniqueness
     # Also ensure that the filename is file-friendly
@@ -181,10 +193,10 @@ print("")
 pprint(compare_questions(questions_ids[2], questions_ids[1]))
 
 # PLOT: MAJOR VS. CHATGPT ACADEMIC USEFULNESS
-plotBarGraph(compare_questions(questions_ids[4], questions_ids[10]), 'bar')
+plotBarGraph(compare_questions(questions_ids[4], questions_ids[10]), graphType='bar', stacked=True)
 
 # PLOT: MAJOR VS. CHATGPT ACADEMIC FAIRNESS
-plotBarGraph(compare_questions(questions_ids[4], questions_ids[8]),'bar')
+plotBarGraph(compare_questions(questions_ids[4], questions_ids[8]), graphType='bar', stacked=False)
 
 # PLOT: AGE VS. CHATGPT ACADEMIC USEFULNESS
-plotBarGraph(compare_questions(questions_ids[0], questions_ids[10]),'line')
+plotBarGraph(compare_questions(questions_ids[0], questions_ids[10]), graphType='line', stacked=False)
