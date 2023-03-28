@@ -115,6 +115,22 @@ def compare_questions(independent, dependent):
             else:
                 hold_data[form_responses['responses'][x]['answers'][independent]['textAnswers']['answers'][0]['value']][
                     form_responses['responses'][x]['answers'][dependent]['textAnswers']['answers'][0]['value']] += 1
+
+    # FIXES INCORRECT GRAMMAR IN A SPECIFIC QUESTION
+    # Changing the value in the Google Form did not transfer the results, thus we must manually fix it here.
+    # To fix this problem, we simply identify each occurrence of the mistake and change it by creating a new key
+    # with the fixes and deleting the old one after its values copied to the fixed one.
+    if independent == '1ed26975':
+        hold_data['I have a bit of knowledge about it.'] = hold_data['I have a bit knowledge about it.']
+        del hold_data['I have a bit knowledge about it.']
+    if dependent == '1ed26975':
+        for response in hold_data.keys():
+            if response == '!Dependant Question' or response == '!!Independant Question':
+                continue
+            else:
+                hold_data[response]['I have a bit of knowledge about it.'] = hold_data[response]['I have a bit knowledge about it.']
+                del hold_data[response]['I have a bit knowledge about it.']
+
     return hold_data
 
 
@@ -151,9 +167,8 @@ def plotBarGraph(data, graphType: str, stacked: bool):
 
     # Plot graph
     df = pd.DataFrame(data)
-    # Create a graph with dimensions of 13" x 8"
-
-    ax = df.T.plot(kind=graphType, figsize=(13, 8), stacked=stacked)
+    # Create a graph with dimensions of 13" x 9"
+    ax = df.T.plot(kind=graphType, figsize=(13, 9), stacked=stacked)
     if graphType == 'bar':
         # Add values to bars (Annotate bars)
         if stacked == False:
@@ -188,9 +203,9 @@ print("\nQuestions and ID's")
 pprint(get_google_form_data())
 print(f"\nQuestion ID list:\n{questions_ids}")
 print("\nRESULTS:\n")
-pprint(compare_questions(questions_ids[0],questions_ids[-3]))
+#pprint(compare_questions(questions_ids[0],questions_ids[-3]))
 print("")
-pprint(compare_questions(questions_ids[2], questions_ids[1]))
+#pprint(compare_questions(questions_ids[2], questions_ids[1]))
 
 # PLOT: MAJOR VS. CHATGPT ACADEMIC USEFULNESS
 plotBarGraph(compare_questions(questions_ids[4], questions_ids[10]), graphType='bar', stacked=True)
@@ -200,3 +215,6 @@ plotBarGraph(compare_questions(questions_ids[4], questions_ids[8]), graphType='b
 
 # PLOT: AGE VS. CHATGPT ACADEMIC USEFULNESS
 plotBarGraph(compare_questions(questions_ids[0], questions_ids[10]), graphType='line', stacked=False)
+
+# PLOT: KNOWLEDGE ON AI/ML VS. CHATGPT AVADEMIC USEFULNESS
+plotBarGraph(compare_questions(questions_ids[10], questions_ids[5]), graphType='bar', stacked=False)
