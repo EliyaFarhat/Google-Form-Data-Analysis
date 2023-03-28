@@ -5,14 +5,12 @@ import pandas as pd
 from httplib2 import Http
 from googleapiclient.discovery import build
 from oauth2client import client, file, tools
-# For easier viewing of JSON data in the terminal (Helpful for debugging)
+# For easier viewing of JSON data
 from pprint import pprint
 
 
-# TODO: Add support for downloading graphs that are generated (Possibly add a GUI)
-
-
-# NOTE: Lines 10 - 29 are available to view on Google's guide for the Google Form API
+# NOTE: Lines 10 - 29 are available to view on Google's documentation for the Google Form API
+# Available here: https://developers.google.com/forms/api/quickstart/python
 
 # Scopes asked for oauth. Requesting access to forms and responses
 SCOPES = ["https://www.googleapis.com/auth/forms.body.readonly",
@@ -36,18 +34,16 @@ if not creds or creds.invalid:
     flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
     creds = tools.run_flow(flow, store)
 
-forms = build('forms', 'v1', http=creds.authorize(Http()), discoveryServiceUrl=DISCOVERY_DOC,
-                  static_discovery=False)
+forms = build('forms', 'v1', http=creds.authorize(Http()), discoveryServiceUrl=DISCOVERY_DOC, static_discovery=False)
 
 form_responses = forms.forms().responses().list(formId=form_id).execute()
 form_info = forms.forms().get(formId=form_id).execute()
 # We can assume that everyone answers each question, since they are all required
-pprint(form_info)
 questions_ids = []
-for x in range(len(form_info['items'])):
-    questions_ids.append(form_info['items'][x]['questionItem']['question']['questionId'])
+for qid in range(len(form_info['items'])):
+    questions_ids.append(form_info['items'][qid]['questionItem']['question']['questionId'])
 
-print("AAAHADSADSADS", questions_ids)
+#print("AAAHADSADSADS", questions_ids)
 
 
 #print(questions_ids)
@@ -61,31 +57,34 @@ def get_google_form_data():
     # List to hold questions
     all_questions = {}
     # Iterate through the JSON data from the above request (line 35), appending all questions to the list above
-    for x in range(len(form_info['items'])):
-        all_questions[form_info['items'][x]['questionItem']['question']['questionId']] = form_info['items'][x]['title']
+    for qname in range(len(form_info['items'])):
+        all_questions[form_info['items'][qname]['questionItem']['question']['questionId']] = form_info['items'][qname]['title']
     # Return all questions with corresponding ID
     return all_questions
 
 
 def get_number_of_responses():
-    """Returns the total number of responses to the Google Form."""
+    """
+
+    :return: Number of Google form responses.
+    """
     # Number of responses
-    number_of_responses = len(form_responses)
+    number_of_responses = len(form_responses['responses'])
     return number_of_responses
 
 
 
 def compare_questions(independent, dependent):
     """
+
+    :param independent: Independent question responses and data
+    :param dependent: Dependent question responses and data
+    :return: {'!!Independant Question': 'Age','!Dependant Question': 'Have you used ChatGPT?','18 - 22': {'No': 1},
+    'Under 18': {'No': 1, 'Yes': 2}}
+
     Collects the number of answers to an independent question with respect to their answer to a dependent question
     For example, this function returns a dictionary with the frequencies of answers of different groups between two
-    questions, allowing for data to be analyzed effectively and quickly.
-
-    {'!!Independant Question': 'Age',
-     '!Dependant Question': 'Have you used ChatGPT?',
-     '18 - 22': {'No': 1},
-     'Under 18': {'No': 1, 'Yes': 2}}
-
+    questions, allowing for data to be analyzed effectively and quickly
     """
     hold_data = {'!Dependant Question': get_google_form_data()[dependent],
                  '!!Independant Question': get_google_form_data()[independent]}
@@ -120,10 +119,15 @@ def compare_questions(independent, dependent):
 
 
 def plotBarGraph(data, graphType):
-    '''
+    """
+
+    :param data: Google form data.
+    :param graphType: Select between 'bar' or 'line'.
+    :return: Saves a graph of the desired type to the project directory.
+
     Given the data dictionary from the compare_questions function. This function compiles the data and plots a
-    grouped bar graph using matplotlib and pandas.
-    '''
+    grouped bar graph using matplotlib and pandas
+    """
     hold_questions = []
     hold_questions.append([data["!!Independant Question"], data["!Dependant Question"]])
     # Get Q1 labels
@@ -144,6 +148,7 @@ def plotBarGraph(data, graphType):
         for label in q2_labelsFinal:
             if label not in value:
                 value[label] = 0
+
     # Plot graph
     df = pd.DataFrame(data)
     # Create a graph with dimensions of 13" x 8"
@@ -154,7 +159,7 @@ def plotBarGraph(data, graphType):
             ax.bar_label(container)
     plt.xticks(rotation=10, ha='right')
     plt.ylabel(hold_questions[0][1],labelpad=20, fontsize=15)
-    plt.xlabel(hold_questions[0][0],labelpad=10, fontsize=15)
+    plt.xlabel(hold_questions[0][0] + f" (Responses: {get_number_of_responses()})",labelpad=10, fontsize=15)
     plt.title(f"{hold_questions[0][1]} vs. {hold_questions[0][0]}")
     # To prevent file overwrites, make the file title the two questions, ensuring uniqueness
     # Also ensure that the filename is file-friendly
